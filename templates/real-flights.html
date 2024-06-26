@@ -1,0 +1,156 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        /* Custom CSS */
+        body {
+            background-image: url('static/images/Airplane_Window_View.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            font-family: Arial, sans-serif;
+            /*
+            background-image: url('static/Images/Airplane_Window_View.jpg'); /* Add your background image URL */
+            background-size: cover;
+            font-family: Arial, sans-serif; /* Change to desired font */
+            color: #ffffff; /* Change font color */
+            */
+        }
+        .container {
+            padding: 20px;
+        }
+        .card {
+            width: 100%;
+            margin-bottom: 20px;
+            background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent background for cards */
+            border-radius: 15px; /* Rounded edges for cards */
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .flight-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .flight-info p {
+            flex: 1;
+            font-size: 16px; /* Adjust font size */
+        }
+        .price-container {
+            margin-top: 10px;
+        }
+        .btn-container {
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: #007bff; /* Change button color */
+            border-color: #007bff; /* Change button border color */
+        }
+        .btn-primary:hover {
+            background-color: #0056b3; /* Change button hover color */
+            border-color: #0056b3; /* Change button border hover color */
+        }
+    </style>
+
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-expand-lg" style = "background-color: #333;">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand">FLIGHT PRICE</a>
+            </div>
+            <div class="navbar-nav mr-auto">
+                <a class="nav-link" href="/">Virtual Flight Predictions</a>
+            &nbsp; &nbsp;
+            <div class="navbar-nav mr-auto">
+                <a class="nav-link" href="/real2">Real-Time Flights</a>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Flight Search Results</h1>
+        {% if flights %}
+            {% for flight in flights %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="flight-info">
+                        <p>Airline: {{ flight.airline_name }}</p>
+                        <p>Flight Number: {{ flight.flight_number }}</p>
+                        <p>Source: {{ flight.source }}</p>
+                        <p>Destination: {{ flight.destination }}</p>
+                    </div>
+                    <div class="flight-info">
+                        <p style="margin-top: 10px;">Dep Time: <span class="formatted-time">{{ flight.departure_time }}</span></p>
+                        <p style="margin-top: 10px;">Arrival Time: <span class="formatted-time">{{ flight.arrival_time }}</span></p>
+                        <p>Duration: {{ flight.duration }}</p>
+                        <p>Stops: {{ flight.stops }}</p>
+                    </div>
+                    <div class="price-container">
+                        <p>Total Price: {{ flight.total_price }}</p>
+                        <p>Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></p>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn btn-primary" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No flights available.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration: duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}"
+            };
+
+            fetch('/predict2', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                if (!response.ok){
+                    return response.json().then(error => {throw new Error(error.error); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees ' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+    
+</body>
+</html>
+
+
+

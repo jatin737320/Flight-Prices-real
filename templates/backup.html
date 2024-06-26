@@ -1,0 +1,745 @@
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS */
+        .card {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .flight-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .flight-info p {
+            flex: 1;
+        }
+        .price-container {
+            margin-top: 10px;
+        }
+        .btn-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Flight Search Results</h1>
+        {% if flights %}
+            {% for flight in flights %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="flight-info">
+                        <p>Airline: {{ flight.airline_name }}</p>
+                        <p>Flight Number: {{ flight.flight_number }}</p>
+                        <p>Source: {{ flight.source }}</p>
+                        <p>Destination: {{ flight.destination }}</p>
+                    </div>
+                    <div class="flight-info">
+                        <p>Dep Time: <span class="formatted-time">{{ flight.departure_time }}</span></p>
+                        &nbsp; &nbsp; &nbsp;
+                        <p>Arrival Time: <span class="formatted-time">{{ flight.arrival_time }}</span></p>
+                        &nbsp; &nbsp; &nbsp;
+                        <p>Duration: {{ flight.duration }}</p>
+                        <p>Stops: {{ flight.stops }}</p>
+                    </div>
+                    <div class="price-container">
+                        <p>Total Price: {{ flight.total_price }}</p>
+                        <p>Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></p>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn btn-primary" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No flights available.</p>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration: duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}"
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees ' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+
+-->
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS */
+        .card {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .flight-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .flight-info p {
+            flex: 1;
+        }
+        .price-container {
+            margin-top: 10px;
+        }
+        .btn-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    {% if flights == None %}
+        <h1>No flights</h1>
+    {% endif %}
+    <div class="container">
+        <h1 class="mt-5 mb-4">Flight Search Results</h1>
+        {% if flights %}
+            {% for flight in flights %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="flight-info">
+                        <p>Airline: {{ flight.airline_name }}</p>
+                        <p>Flight Number: {{ flight.flight_number }}</p>
+                        <p>Source: {{ flight.source }}</p>
+                        <p>Destination: {{ flight.destination }}</p>
+                    </div>
+                    <div class="flight-info">
+                        <p>Dep Time: <span class="formatted-time">{{ flight.departure_time }}</p></span>
+                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                        <p>Arrival Time: <span class="formatted-time">{{ flight.arrival_time }}</p></span>
+                        &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                        <p>Duration: {{ flight.duration }}</p>
+                        <p>Stops: {{ flight.stops }}</p>
+                    </div>
+                    <div class="price-container">
+                        <p>Total Price: {{ flight.total_price }}</p>
+                        <p>Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></p>
+                    </div>
+                    <div class="btn-container">
+                        <button class="btn btn-primary" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        {% else %}
+            <h1> No Flights Found </h1>
+        {% endif %}
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        /*
+        function formatTime(dateTimeString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
+            const formattedDate = new Date(dateTimeString).toLocaleString('en-US', options);
+            return formattedDate.replace(', ', ' at ');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const timeElements = document.querySelectorAll('.formatted-time');
+            timeElements.forEach(function(element) {
+                element.innerText = formatTime(element.innerText);
+            });
+        });*/
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration : duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                
+                source: "{{ flights[0].source if flights else ''}}",  // Assuming source and destination are the same for all flights
+                destination: "{{ flights[0].destination if flights else ''}}"
+            
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees ' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+-->
+
+
+
+
+
+
+
+
+<!--
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS */
+        .card {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .flight-info {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .flight-info > div {
+            flex: 1;
+        }
+        .flight-info h5,
+        .flight-info p {
+            margin: 0;
+        }
+        .btn-container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Flight Search Results</h1>
+        {% for flight in flights %}
+        <div class="card">
+            <div class="card-body">
+                <div class="flight-info">
+                    <div>
+                        <h5 class="card-title">Airline: {{ flight.airline_code }}</h5>
+                        <p class="card-text">Flight Number: {{ flight.flight_number }}</p>
+                        <p class="card-text">Source: {{ flight.source }}</p>
+                        <p class="card-text">Destination: {{ flight.destination }}</p>
+                    </div>
+                    <div>
+                        <p class="card-text">Departure Time: {{ flight.departure_time }}</p>
+                        <p class="card-text">Arrival Time: {{ flight.arrival_time }}</p>
+                        <p class="card-text">Duration: {{ flight.duration }}</p>
+                        <p class="card-text">Stops: {{ flight.stops }}</p>
+                    </div>
+                    <div>
+                        <p class="card-text">Total Price: {{ flight.total_price }}</p>
+                        <p class="card-text">Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></p>
+                    </div>
+                </div>
+                <div class="btn-container">
+                    <button class="btn btn-primary" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration : duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}""
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees ' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+
+-->
+
+
+
+
+<!--
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom CSS */
+        .card {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Flight Search Results</h1>
+        {% for flight in flights %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Airline: {{ flight.airline_code }}</h5>
+                <p class="card-text">Flight Number: {{ flight.flight_number }}</p>
+                <p class="card-text">Source: {{ flight.source }}</p>
+                <p class="card-text">Destination: {{ flight.destination }}</p>
+                <p class="card-text">Departure Time: {{ flight.departure_time }}</p>
+                <p class="card-text">Arrival Time: {{ flight.arrival_time }}</p>
+                <p class="card-text">Duration: {{ flight.duration }}</p>
+                <p class="card-text">Stops: {{ flight.stops }}</p>
+                <p class="card-text">Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></p>
+                <p class="card-text">Total Price: {{ flight.total_price }}</p>
+                <div class="text-center">
+                    <button class="btn btn-primary" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration : duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}"
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees ' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+-->
+
+
+
+
+
+
+<!--
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Flight Search Results</h1>
+        {% for flight in flights %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h5 class="card-title">Airline: {{ flight.airline_code }}</h5>
+                        <p class="card-text">Flight Number: {{ flight.flight_number }}</p>
+                        <p class="card-text">Source: {{ flight.source }}</p>
+                        <p class="card-text">Destination: {{ flight.destination }}</p>
+                        <p class="card-text">Departure Time: {{ flight.departure_time }}</p>
+                        <p class="card-text">Arrival Time: {{ flight.arrival_time }}</p>
+                        <p class="card-text">Duration: {{ flight.duration }}</p>
+                        <p class="card-text">Stops: {{ flight.stops }}</p>
+                        <p class="card-text">Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></p>
+                        <p class="card-text">Total Price: {{ flight.total_price }}</p>
+                    </div>
+                    <div class="col-sm-6 d-flex align-items-center justify-content-center">
+                        <button class="btn btn-primary" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Link Bootstrap JS (Optional) -->
+    <!--
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration : duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}"
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees ' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+-->
+
+
+
+
+
+
+
+
+
+
+<!--
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .flight {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .flight:hover {
+            background-color: #eee;
+        }
+        .flight-info {
+            display: flex;
+            justify-content: space-between;
+        }
+        .flight-info > div {
+            flex: 1;
+            text-align: center;
+        }
+        .flight-info > div:first-child {
+            text-align: left;
+        }
+        .flight-info > div:last-child {
+            text-align: right;
+        }
+        .action-button {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    
+        <h1>Flight Search Results</h1>
+        {% for flight in flights %}
+        <div class="flight">
+            <div>Airline: {{ flight.airline_code }}</div>
+            <div>Flight Number: {{ flight.flight_number }}</div>
+            <div>Source: {{ flight.source }}</div>
+            <div>Destination: {{ flight.destination }}</div>
+            <div>Departure Time: {{ flight.departure_time }}</div>
+            <div>Arrival Time: {{ flight.arrival_time }}</div>
+            <div>Duration: {{ flight.duration }}</div>
+            <div>Stops: {{ flight.stops }}</div>
+            <div>Price Prediction: <span id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</span></div>
+            <div>Total Price: {{ flight.total_price }}</div>
+            <div class="flight-info">
+                <div>
+                    <button class="action-button" onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{ flight.duration }}', {{ loop.index0 }})">Predict</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    
+    
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration : duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}"
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+-->
+
+
+
+
+
+
+<!--
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search Results</title>
+</head>
+<body>
+    <h1>Flight Search Results</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Airline</th>
+                <th>Flight Number</th>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Departure Time</th>
+                <th>Arrival Time</th>
+                <th>Duration</th>
+                <th>Stops</th>
+                <th>Price Prediction</th>
+                <th>Total Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for flight in flights %}
+            <tr>
+                <td>{{ flight.airline_code }}</td>
+                <td>{{ flight.flight_number }}</td>
+                <td>{{ flight.source }}</td>
+                <td>{{ flight.destination }}</td>
+                <td>{{ flight.departure_time }}</td>
+                <td>{{ flight.arrival_time }}</td>
+                <td>{{ flight.duration }}</td>
+                <td>{{ flight.stops }}</td>
+                <td id="prediction-{{ loop.index0 }}">{{ flight.price_prediction if flight.price_prediction else 'N/A' }}</td>
+                <td>{{ flight.total_price }}</td>
+                <td>
+                    <button onclick="predict('{{ flight.flight_number }}', '{{ flight.departure_time }}', '{{ flight.arrival_time }}', '{{ flight.airline_code }}', '{{ flight.stops }}', '{{ flight.total_price }}', '{{flight.duration}}', {{ loop.index0 }})">Predict</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function predict(flightNumber, departureTime, arrivalTime, airlineCode, stops, totalPrice, duration, index) {
+            const payload = {
+                flightNumber: flightNumber,
+                departureTime: departureTime,
+                duration : duration,
+                arrivalTime: arrivalTime,
+                airlineCode: airlineCode,
+                stops: stops,
+                totalPrice: totalPrice,
+                source: "{{ flights[0].source if flights else '' }}",
+                destination: "{{ flights[0].destination if flights else '' }}"
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('prediction-' + index).innerText = 'Rupees' + data.price_prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+-->

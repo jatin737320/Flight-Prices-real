@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Price Prediction</title>
+
+    <!-- BootStrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <!-- css -->
+    <link rel="stylesheet" href="static/css/styles.css">
+    <style>
+        body {
+            background-image: url('static/images/Airplane_Window_View.jpg');
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0);
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .navbar {
+            background-color: #333;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+        
+        select, input[type="date"], input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn {
+            background-color: #5c905d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #4cae4c;
+        }
+
+        h3 {
+            color: #5cb85c;
+        }
+
+        .form-container {
+            padding-bottom : 100px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- As a heading -->
+    <nav class="navbar navbar-inverse navbar-expand-lg" style = "background-color: #333;">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand">FLIGHT PRICE</a>
+            </div>
+            <div class="navbar-nav mr-auto">
+                <a class="nav-link" href="/">Virtual Flight Predictions</a>
+            &nbsp; &nbsp;
+            <div class="navbar-nav mr-auto">
+                <a class="nav-link" href="/real2">Real-Time Flights</a>
+            </div>
+        </div>
+    </nav>
+    <!--
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-nav mr-auto">
+                <a class="navbar-navlink" href="/">FLIGHT PRICE</a>
+            </div>
+            &nbsp; &nbsp;
+            <div class="navbar-nav mr-auto">
+                <a class="navbar-navlink" href="/real2">Real Flights</a>
+            </div>
+        </div>
+    </nav>
+    -->
+
+    <!--
+    <form action="/search_flights" method="post">
+        <label for="origin">Source:</label>
+        <input type="text" id="origin" name="origin" required><br><br>
+
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" required><br><br>
+
+        <label for="departure_date">Date:</label>
+        <input type="date" id="departure_date" name="departure_date" required><br><br>
+
+        <input type="submit" value="Search Flights">
+    </form>
+-->
+    <form action="/search_flights" method="post">
+        <div class="container form-container">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <label for="origin" class = "card-title"> Source</label>
+                                <select id="origin" name = "origin" required onchange="updateDropdowns()">
+                                    <option value="" disabled selected>Select Source</option>
+                                    {% for airport in airports %}
+                                    <option value="{{ airport }}">{{ airport }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                
+                                <label for="destination" class = "card-title">Destination</label>
+                                <select id="destination" name = "destination" required="required" onchange="updateDropdowns()">
+                                    <option value="" disabled selected>Select Destination</option>
+                                    {% for airport in airports %}
+                                    <option value="{{ airport }}">{{ airport }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br><br>
+                
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <label for="departure_date" class = "card-title">Date:</label>
+                                <input type="date" "departure_date" name="departure_date" required="required" min="{{ today }}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Stopage</h5>
+                                <select name="stops" required="required">
+                                    <option value="0">Non-Stop</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br><br>
+            
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Which Airline you want to travel?</h5>
+                                <select name="airline" id="airline" required="required">
+                                    {% for airline in airlines %}
+                                    <option value="{{ airline }}">{{ airline }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <h3>{{ prediction_text }}</h3>
+                    </div>
+                </div>-->
+                <br>
+            <input type="submit" value="Search Flights" class="btn btn-secondary">
+        </form>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <script>
+        
+        const originalAirports = [{% for airport in airports %}"{{ airport }}",{% endfor %}];
+
+        function updateDropdowns() {
+            const sourceDropdown = document.getElementById('origin');
+            const destinationDropdown = document.getElementById('destination');
+            const selectedSource = sourceDropdown.value;
+            const selectedDestination = destinationDropdown.value;
+
+            // Clear and repopulate source dropdown
+            sourceDropdown.innerHTML = '<option value="" disabled>Select Source</option>';
+            originalAirports.forEach(airport => {
+                if (airport !== selectedDestination) {
+                    const option = document.createElement('option');
+                    option.value = airport;
+                    option.text = airport;
+                    sourceDropdown.appendChild(option);
+                }
+            });
+
+            // Clear and repopulate destination dropdown
+            destinationDropdown.innerHTML = '<option value="" disabled>Select Destination</option>';
+            originalAirports.forEach(airport => {
+                if (airport !== selectedSource) {
+                    const option = document.createElement('option');
+                    option.value = airport;
+                    option.text = airport;
+                    destinationDropdown.appendChild(option);
+                }
+            });
+
+            // Retain selected options if valid
+            if (selectedSource) {
+                sourceDropdown.value = selectedSource;
+            }
+            if (selectedDestination) {
+                destinationDropdown.value = selectedDestination;
+            }
+        }
+
+        // Initialize options on page load
+        window.onload = function() {
+            //const sourceDropdown = document.getElementById('Source');
+            //const destinationDropdown = document.getElementById('Destination');
+
+            // Add default options for "Select Source" and "Select Destination"
+            sourceDropdown.insertAdjacentHTML('afterbegin', '<option value="" selected disabled>Select Source</option>');
+            destinationDropdown.insertAdjacentHTML('afterbegin', '<option value="" selected disabled>Select Destination</option>');
+
+            // Populate both dropdowns with all airports
+            originalAirports.forEach(airport => {
+                let sourceOption = document.createElement('option');
+                sourceOption.value = airport;
+                sourceOption.text = airport;
+                sourceDropdown.appendChild(sourceOption);
+
+                let destinationOption = document.createElement('option');
+                destinationOption.value = airport;
+                destinationOption.text = airport;
+                destinationDropdown.appendChild(destinationOption);
+            });
+        };
+
+    
+    </script>
+</body>
+
+</html>
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Search</title>
+</head>
+<body>
+    <h1>Flight Search</h1>
+    <form action="/search_flights" method="post">
+        <label for="origin">Source:</label>
+        <input type="text" id="origin" name="origin" required><br><br>
+
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" name="destination" required><br><br>
+
+        <label for="departure_date">Date:</label>
+        <input type="date" id="departure_date" name="departure_date" required><br><br>
+
+        <input type="submit" value="Search Flights">
+    </form>
+</body>
+</html>
+-->
